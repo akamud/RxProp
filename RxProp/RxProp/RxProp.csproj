@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="ReactiveProperty" Version="6.0.3" />
     <PackageReference Include="ReactiveUI" Version="9.19.5" />
+    <PackageReference Include="ReactiveUI.Fody" Version="9.19.5" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.555618" />  
     <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
   </ItemGroup>
