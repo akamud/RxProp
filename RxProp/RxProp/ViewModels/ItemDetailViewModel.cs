@@ -1,34 +1,54 @@
-﻿using System;
+﻿using RxProp.Models;
+using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Reactive.Bindings;
-using RxProp.Models;
 
 namespace RxProp.ViewModels
 {
     public class ItemDetailViewModel : BaseViewModel
     {
         public Item Item { get; set; }
-        public ReactiveProperty<string> CEP { get; }
-        public ReadOnlyReactiveProperty<string> CEPBusca { get; }
+        string cep = string.Empty;
+        public string CEP
+        {
+            get { return cep; }
+            set { SetProperty(ref cep, value); }
+        }
+
+        string cepBusca = string.Empty;
+        public string CEPBusca
+        {
+            get { return cepBusca; }
+            set { SetProperty(ref cepBusca, value); }
+        }
 
         public ItemDetailViewModel(Item item = null)
         {
             Title = item?.Text;
             Item = item;
 
-            CEP = new ReactiveProperty<string>("");
-            CEPBusca = CEP.Throttle(TimeSpan.FromMilliseconds(500))
+            CEP = "";
+            var obs = this.ToObservable(x => x.CEP)
+                .Throttle(TimeSpan.FromMilliseconds(500))
                 .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length == 9)
                 .DistinctUntilChanged()
-                .Select(x => x.Replace("-", "").Trim())
-                .ToReadOnlyReactiveProperty();
+                .Select(x => x.Replace("-", "").Trim());
 
-            var result = CEPBusca.Select(Write)
+            obs.Select(Write)
                 .Switch()
-                .Do(x => Debug.WriteLine(x))
-                .ToReactiveProperty();
+                .Do(x => Debug.WriteLine(x));
+
+            //CEPBusca = CEP.Throttle(TimeSpan.FromMilliseconds(500))
+            //    .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length == 9)
+            //    .DistinctUntilChanged()
+            //    .Select(x => x.Replace("-", "").Trim())
+            //    .ToReadOnlyReactiveProperty();
+
+            //var result = CEPBusca.Select(Write)
+            //    .Switch()
+            //    .Do(x => Debug.WriteLine(x))
+            //    .ToReactiveProperty();
         }
 
         private async Task<string> Write(string x)
