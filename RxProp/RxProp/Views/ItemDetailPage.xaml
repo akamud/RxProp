@@ -8,8 +8,8 @@
              Title="{Binding Title}">
 
     <StackLayout Spacing="20" Padding="15">
-        <Entry Text="{Binding CEP.Value}" />
-        <Label Text="{Binding CEPBusca.Value}" />
+        <Entry Text="{Binding CEP}" />
+        <Label Text="{Binding CEPBusca}" />
         <Label Text="Text:" FontSize="Medium" />
         <Label Text="{Binding Item.Text}" d:Text="Item name" FontSize="Small"/>
         <Label Text="Description:" FontSize="Medium" />

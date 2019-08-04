@@ -1,34 +1,47 @@
-﻿using System;
+﻿using ReactiveUI;
+using RxProp.Models;
+using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Reactive.Bindings;
-using RxProp.Models;
 
 namespace RxProp.ViewModels
 {
-    public class ItemDetailViewModel : BaseViewModel
+    public class ItemDetailViewModel : ReactiveObject
     {
         public Item Item { get; set; }
-        public ReactiveProperty<string> CEP { get; }
-        public ReadOnlyReactiveProperty<string> CEPBusca { get; }
+
+        private string cep;
+
+        public string CEP
+        {
+            get { return cep; }
+            set { this.RaiseAndSetIfChanged(ref cep, value); }
+        }
+
+        ObservableAsPropertyHelper<string> cepBusca;
+
+        public string CEPBusca
+        {
+            get { return cepBusca.Value; }
+        }
 
         public ItemDetailViewModel(Item item = null)
         {
-            Title = item?.Text;
             Item = item;
 
-            CEP = new ReactiveProperty<string>("");
-            CEPBusca = CEP.Throttle(TimeSpan.FromMilliseconds(500))
+            CEP = "";
+            cepBusca = this.WhenAnyValue(x => x.CEP)
+                .Throttle(TimeSpan.FromMilliseconds(500))
                 .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length == 9)
                 .DistinctUntilChanged()
                 .Select(x => x.Replace("-", "").Trim())
-                .ToReadOnlyReactiveProperty();
+                .ToProperty(this, e => e.CEPBusca);
 
-            var result = CEPBusca.Select(Write)
+            var result = this.WhenAnyValue(x => x.CEPBusca)
+                .Select(Write)
                 .Switch()
-                .Do(x => Debug.WriteLine(x))
-                .ToReactiveProperty();
+                .Subscribe(x => Debug.WriteLine(x));
         }
 
         private async Task<string> Write(string x)
